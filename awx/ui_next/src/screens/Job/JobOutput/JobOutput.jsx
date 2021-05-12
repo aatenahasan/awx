@@ -39,6 +39,7 @@ import { HostStatusBar, OutputToolbar } from './shared';
 import getRowRangePageSize from './shared/jobOutputUtils';
 import { getJobModel, isJobRunning } from '../../../util/jobs';
 import useRequest, { useDismissableError } from '../../../util/useRequest';
+import useInterval from '../../../util/useInterval';
 import {
   encodeNonDefaultQueryString,
   parseQueryString,
@@ -278,7 +279,6 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
   const isMounted = useRef(false);
   const previousWidth = useRef(0);
   const jobSocketCounter = useRef(0);
-  const interval = useRef(null);
   const history = useHistory();
   const [contentError, setContentError] = useState(null);
   const [cssMap, setCssMap] = useState({});
@@ -290,7 +290,15 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [remoteRowCount, setRemoteRowCount] = useState(0);
   const [results, setResults] = useState({});
-  const [isFollowEnabled, setIsFollowModeEnabled] = useState(false);
+  const [isFollowModeEnabled, setIsFollowModeEnabled] = useState(false);
+  const [isMonitoringWebsocket, setIsMonitoringWebsocket] = useState(false);
+
+  useInterval(
+    () => {
+      monitorJobSocketCounter();
+    },
+    isMonitoringWebsocket ? 5000 : null
+  );
 
   useEffect(() => {
     isMounted.current = true;
@@ -312,14 +320,14 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
           }
         }
       });
-      interval.current = setInterval(() => monitorJobSocketCounter(), 5000);
+      setIsMonitoringWebsocket(true);
     }
 
     return function cleanup() {
       if (ws) {
         ws.close();
       }
-      clearInterval(interval.current);
+      setIsMonitoringWebsocket(false);
       isMounted.current = false;
     };
   }, [location.search]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -329,6 +337,22 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
       listRef.current.recomputeRowHeights();
     }
   }, [currentlyLoading, cssMap, remoteRowCount]);
+
+  useEffect(() => {
+    if (jobStatus && !isJobRunning(jobStatus)) {
+      if (jobSocketCounter.current > remoteRowCount && isMounted.current) {
+        setRemoteRowCount(jobSocketCounter.current);
+      }
+
+      if (isMonitoringWebsocket) {
+        setIsMonitoringWebsocket(false);
+      }
+
+      if (isFollowModeEnabled) {
+        setTimeout(() => setIsFollowModeEnabled(false), 1000);
+      }
+    }
+  }, [jobStatus]);
 
   const {
     error: cancelError,
@@ -364,14 +388,14 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
   } = useDismissableError(deleteError);
 
   const monitorJobSocketCounter = () => {
+    if (jobSocketCounter.current > remoteRowCount && isMounted.current) {
+      setRemoteRowCount(jobSocketCounter.current);
+    }
     if (
       jobSocketCounter.current === remoteRowCount &&
       !isJobRunning(job.status)
     ) {
-      clearInterval(interval.current);
-    }
-    if (jobSocketCounter.current > remoteRowCount && isMounted.current) {
-      setRemoteRowCount(jobSocketCounter.current);
+      setIsMonitoringWebsocket(false);
     }
   };
 
@@ -624,7 +648,7 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
   };
 
   const handleFollowToggle = () => {
-    if (isFollowEnabled) {
+    if (isFollowModeEnabled) {
       setIsFollowModeEnabled(false);
     } else {
       setIsFollowModeEnabled(true);
@@ -632,16 +656,19 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
     }
   };
   const handleScroll = () => {
-    if (listRef?.current?.Grid?._renderedRowStopIndex < remoteRowCount - 1) {
+    if (
+      isFollowModeEnabled &&
+      listRef?.current?.Grid?._renderedRowStopIndex < remoteRowCount - 1
+    ) {
       setIsFollowModeEnabled(false);
     }
   };
 
   useEffect(() => {
-    if (isFollowEnabled) {
-      scrollToRow(remoteRowCount);
+    if (isFollowModeEnabled) {
+      scrollToRow(remoteRowCount - 1);
     }
-  }, [remoteRowCount, isFollowEnabled]);
+  }, [remoteRowCount, isFollowModeEnabled]);
 
   const renderSearchComponent = () => (
     <Search
@@ -753,10 +780,10 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
             </ToolbarToggleGroup>
             {isJobRunning(job.status) ? (
               <Button
-                variant={isFollowEnabled ? 'secondary' : 'primary'}
+                variant={isFollowModeEnabled ? 'secondary' : 'primary'}
                 onClick={handleFollowToggle}
               >
-                {isFollowEnabled ? t`Unfollow` : t`Follow`}
+                {isFollowModeEnabled ? t`Unfollow` : t`Follow`}
               </Button>
             ) : null}
           </SearchToolbarContent>
@@ -767,7 +794,7 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
           onScrollNext={handleScrollNext}
           onScrollPrevious={handleScrollPrevious}
         />
-        <OutputWrapper cssMap={cssMap} isFollowEnabled={isFollowEnabled}>
+        <OutputWrapper cssMap={cssMap}>
           <InfiniteLoader
             isRowLoaded={isRowLoaded}
             loadMoreRows={loadMoreRows}
@@ -790,7 +817,14 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
                           }}
                           deferredMeasurementCache={cache}
                           height={height || 1}
-                          onRowsRendered={onRowsRendered}
+                          onRowsRendered={({ startIndex, stopIndex }) => {
+                            if (listRef.current && isFollowModeEnabled) {
+                              setTimeout(() => {
+                                scrollToRow(remoteRowCount - 1);
+                              }, 0);
+                            }
+                            onRowsRendered({ startIndex, stopIndex });
+                          }}
                           rowCount={remoteRowCount}
                           rowHeight={cache.rowHeight}
                           rowRenderer={rowRenderer}
