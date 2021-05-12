@@ -525,6 +525,8 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
   };
 
   const loadMoreRows = ({ startIndex, stopIndex }) => {
+    console.log(results['3009'], results['3008']);
+    console.log(startIndex, stopIndex);
     if (!isFollowEnabled) {
       if (startIndex === 0 && stopIndex === 0) {
         return Promise.resolve(null);
@@ -582,7 +584,9 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
   };
 
   const scrollToRow = rowIndex => {
-    listRef.current.scrollToRow(rowIndex);
+    if (listRef.current) {
+      listRef.current.scrollToRow(rowIndex);
+    }
   };
 
   const handleScrollPrevious = () => {
@@ -816,12 +820,15 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
                           height={height || 1}
                           onRowsRendered={({ startIndex, stopIndex }) => {
                             if (listRef.current && isFollowEnabled) {
-                              listRef.current.scrollToRow(remoteRowCount - 1);
+                              scrollToRow(remoteRowCount - 1);
+                              setTimeout(() => {
+                                scrollToRow(remoteRowCount - 1);
+                              }, 0);
                               if (
                                 jobSocketCounter.current === remoteRowCount &&
                                 !isJobRunning(job.status)
                               ) {
-                                setIsFollowModeEnabled(false);
+                                // setIsFollowModeEnabled(false);
                                 setIsMonitoringWebsocket(false);
                               }
                             }
