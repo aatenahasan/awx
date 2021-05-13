@@ -484,7 +484,16 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
     setIsHostModalOpen(false);
   };
 
-  const rowRenderer = ({ index, parent, key, style }) => {
+  const rowRenderer = ({ isScrolling, index, parent, key, style }) => {
+    if (listRef.current) {
+      // HERE Trying to find a way to capture the scrollTop of the output panel
+      console.log(listRef.current.Grid.scrollTop);
+    }
+    // if (isFollowModeEnabled) {
+    if (listRef.current && isFollowModeEnabled && isScrolling) {
+      scrollToRow(remoteRowCount - 1);
+    }
+    // }
     let actualLineTextHtml = [];
     if (results[index]) {
       const { lineTextHtml } = getLineTextHtml(results[index]);
@@ -655,20 +664,32 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
       scrollToRow(remoteRowCount - 1);
     }
   };
-  const handleScroll = () => {
-    if (
-      isFollowModeEnabled &&
-      listRef?.current?.Grid?._renderedRowStopIndex < remoteRowCount - 1
-    ) {
-      setIsFollowModeEnabled(false);
-    }
-  };
 
-  useEffect(() => {
-    if (isFollowModeEnabled) {
-      scrollToRow(remoteRowCount - 1);
-    }
-  }, [remoteRowCount, isFollowModeEnabled]);
+  // const handleScroll = () => {
+  //   if (
+  //     isFollowModeEnabled &&
+  //     listRef?.current?.Grid?._renderedRowStopIndex < remoteRowCount - 1
+  //   ) {
+  //     setIsFollowModeEnabled(false);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   if (isFollowModeEnabled) {
+  //     scrollToRow(remoteRowCount - 1);
+  //   }
+  // }, [remoteRowCount, isFollowModeEnabled]);
+
+  // useEffect(() => {
+  //   console.log(listRef?.current?.scrollTop);
+  // }, [listRef]);
+
+  // useEffect(() => {
+  //   if (isFollowModeEnabled && listRef?.current?.scrollTop < scrollPosition.current) {
+  //     setIsFollowModeEnabled(false);
+  //   }
+  //   console.log(listRef?.current?.scrollTop);
+  // }, [listRef]);
 
   const renderSearchComponent = () => (
     <Search
@@ -817,21 +838,35 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
                           }}
                           deferredMeasurementCache={cache}
                           height={height || 1}
-                          onRowsRendered={({ startIndex, stopIndex }) => {
-                            if (listRef.current && isFollowModeEnabled) {
-                              setTimeout(() => {
-                                scrollToRow(remoteRowCount - 1);
-                              }, 0);
-                            }
-                            onRowsRendered({ startIndex, stopIndex });
-                          }}
+                          // onRowsRendered={({ startIndex, stopIndex }) => {
+                          //   if (listRef.current && isFollowModeEnabled) {
+                          //     console.log(
+                          //       'setting fooTimer',
+                          //       startIndex,
+                          //       stopIndex
+                          //     );
+                          //     fooTimer.current = setTimeout(() => {
+                          //       console.log(
+                          //         'running fooTimer',
+                          //         startIndex,
+                          //         stopIndex
+                          //       );
+                          //       scrollToRow(remoteRowCount - 1);
+                          //     }, 2000);
+                          //     // setTimeout(() => {
+                          //     //   scrollToRow(remoteRowCount - 1);
+                          //     // }, 0);
+                          //   }
+                          //   onRowsRendered({ startIndex, stopIndex });
+                          // }}
+                          onRowsRendered={onRowsRendered}
                           rowCount={remoteRowCount}
                           rowHeight={cache.rowHeight}
                           rowRenderer={rowRenderer}
                           scrollToAlignment="start"
                           width={width || 1}
                           overscanRowCount={20}
-                          onScroll={handleScroll}
+                          // onScroll={handleScroll}
                         />
                       )}
                     </>
