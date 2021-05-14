@@ -669,40 +669,11 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
       scrollTop.current > e.scrollTop &&
       scrollHeight.current === e.scrollHeight
     ) {
-      console.log(scrollTop.current, e.scrollTop);
-      console.log(scrollHeight.current, e.scrollHeight);
-      console.log('!!!!!!');
       setIsFollowModeEnabled(false);
     }
     scrollTop.current = e.scrollTop;
     scrollHeight.current = e.scrollHeight;
   };
-
-  // const handleScroll = () => {
-  //   if (
-  //     isFollowModeEnabled &&
-  //     listRef?.current?.Grid?._renderedRowStopIndex < remoteRowCount - 1
-  //   ) {
-  //     setIsFollowModeEnabled(false);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   if (isFollowModeEnabled) {
-  //     scrollToRow(remoteRowCount - 1);
-  //   }
-  // }, [remoteRowCount, isFollowModeEnabled]);
-
-  // useEffect(() => {
-  //   console.log(listRef?.current?.scrollTop);
-  // }, [listRef]);
-
-  // useEffect(() => {
-  //   if (isFollowModeEnabled && listRef?.current?.scrollTop < foobar.current) {
-  //     setIsFollowModeEnabled(false);
-  //   }
-  //   console.log(listRef?.current?.scrollTop);
-  // }, [listRef.current?.scrollTop]);
 
   const renderSearchComponent = () => (
     <Search
@@ -851,27 +822,6 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
                           }}
                           deferredMeasurementCache={cache}
                           height={height || 1}
-                          // onRowsRendered={({ startIndex, stopIndex }) => {
-                          //   if (listRef.current && isFollowModeEnabled) {
-                          //     console.log(
-                          //       'setting fooTimer',
-                          //       startIndex,
-                          //       stopIndex
-                          //     );
-                          //     fooTimer.current = setTimeout(() => {
-                          //       console.log(
-                          //         'running fooTimer',
-                          //         startIndex,
-                          //         stopIndex
-                          //       );
-                          //       scrollToRow(remoteRowCount - 1);
-                          //     }, 2000);
-                          //     // setTimeout(() => {
-                          //     //   scrollToRow(remoteRowCount - 1);
-                          //     // }, 0);
-                          //   }
-                          //   onRowsRendered({ startIndex, stopIndex });
-                          // }}
                           onRowsRendered={onRowsRendered}
                           rowCount={remoteRowCount}
                           rowHeight={cache.rowHeight}
