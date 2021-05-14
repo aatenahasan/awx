@@ -279,6 +279,7 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
   const isMounted = useRef(false);
   const previousWidth = useRef(0);
   const jobSocketCounter = useRef(0);
+  const foobar = useRef(0);
   const history = useHistory();
   const [contentError, setContentError] = useState(null);
   const [cssMap, setCssMap] = useState({});
@@ -486,8 +487,10 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
 
   const rowRenderer = ({ isScrolling, index, parent, key, style }) => {
     if (listRef.current) {
-      // HERE Trying to find a way to capture the scrollTop of the output panel
-      console.log(listRef.current.Grid.scrollTop);
+      console.log(listRef?.current?.scrollTop);
+      foobar.current = document.getElementsByClassName(
+        'ReactVirtualized__Grid'
+      )[0].scrollTop;
     }
     // if (isFollowModeEnabled) {
     if (listRef.current && isFollowModeEnabled && isScrolling) {
@@ -685,11 +688,11 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
   // }, [listRef]);
 
   // useEffect(() => {
-  //   if (isFollowModeEnabled && listRef?.current?.scrollTop < scrollPosition.current) {
+  //   if (isFollowModeEnabled && listRef?.current?.scrollTop < foobar.current) {
   //     setIsFollowModeEnabled(false);
   //   }
   //   console.log(listRef?.current?.scrollTop);
-  // }, [listRef]);
+  // }, [listRef.current?.scrollTop]);
 
   const renderSearchComponent = () => (
     <Search
