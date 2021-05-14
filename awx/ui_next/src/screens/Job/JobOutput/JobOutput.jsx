@@ -279,7 +279,8 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
   const isMounted = useRef(false);
   const previousWidth = useRef(0);
   const jobSocketCounter = useRef(0);
-  const foobar = useRef(0);
+  const scrollTop = useRef(0);
+  const scrollHeight = useRef(0);
   const history = useHistory();
   const [contentError, setContentError] = useState(null);
   const [cssMap, setCssMap] = useState({});
@@ -485,18 +486,10 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
     setIsHostModalOpen(false);
   };
 
-  const rowRenderer = ({ isScrolling, index, parent, key, style }) => {
-    if (listRef.current) {
-      console.log(listRef?.current?.scrollTop);
-      foobar.current = document.getElementsByClassName(
-        'ReactVirtualized__Grid'
-      )[0].scrollTop;
+  const rowRenderer = ({ index, parent, key, style }) => {
+    if (listRef.current && isFollowModeEnabled) {
+      setTimeout(() => scrollToRow(remoteRowCount - 1), 0);
     }
-    // if (isFollowModeEnabled) {
-    if (listRef.current && isFollowModeEnabled && isScrolling) {
-      scrollToRow(remoteRowCount - 1);
-    }
-    // }
     let actualLineTextHtml = [];
     if (results[index]) {
       const { lineTextHtml } = getLineTextHtml(results[index]);
@@ -594,7 +587,9 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
   };
 
   const scrollToRow = rowIndex => {
-    listRef.current.scrollToRow(rowIndex);
+    if (listRef.current) {
+      listRef.current.scrollToRow(rowIndex);
+    }
   };
 
   const handleScrollPrevious = () => {
@@ -666,6 +661,21 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
       setIsFollowModeEnabled(true);
       scrollToRow(remoteRowCount - 1);
     }
+  };
+
+  const handleScroll = e => {
+    if (
+      isFollowModeEnabled &&
+      scrollTop.current > e.scrollTop &&
+      scrollHeight.current === e.scrollHeight
+    ) {
+      console.log(scrollTop.current, e.scrollTop);
+      console.log(scrollHeight.current, e.scrollHeight);
+      console.log('!!!!!!');
+      setIsFollowModeEnabled(false);
+    }
+    scrollTop.current = e.scrollTop;
+    scrollHeight.current = e.scrollHeight;
   };
 
   // const handleScroll = () => {
@@ -869,7 +879,7 @@ function JobOutput({ job, eventRelatedSearchableKeys, eventSearchableKeys }) {
                           scrollToAlignment="start"
                           width={width || 1}
                           overscanRowCount={20}
-                          // onScroll={handleScroll}
+                          onScroll={handleScroll}
                         />
                       )}
                     </>
