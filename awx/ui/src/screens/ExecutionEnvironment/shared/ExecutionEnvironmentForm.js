@@ -92,6 +92,33 @@ function ExecutionEnvironmentFormFields({
         isDisabled={executionEnvironment?.managed || false}
       />
       <FormField
+        id="execution-environment-description"
+        label={t`Description`}
+        name="description"
+        type="text"
+        isDisabled={executionEnvironment?.managed || false}
+      />
+      {isOrgLookupDisabled && isGloballyAvailable.current ? (
+        <Tooltip
+          content={t`Globally available execution environment can not be reassigned to a specific Organization`}
+        >
+          {renderOrganizationLookup()}
+        </Tooltip>
+      ) : (
+        renderOrganizationLookup()
+      )}
+      <CredentialLookup
+        label={t`Registry credential`}
+        credentialTypeKind="registry"
+        helperTextInvalid={credentialMeta.error}
+        isValid={!credentialMeta.touched || !credentialMeta.error}
+        onBlur={() => credentialHelpers.setTouched()}
+        onChange={onCredentialChange}
+        value={credentialField.value}
+        tooltip={t`Credential to authenticate with a protected container registry.`}
+        isDisabled={executionEnvironment?.managed || false}
+      />
+      <FormField
         id="execution-environment-image"
         label={t`Image`}
         name="image"
@@ -135,34 +162,6 @@ function ExecutionEnvironmentFormFields({
           }}
         />
       </FormGroup>
-      <FormField
-        id="execution-environment-description"
-        label={t`Description`}
-        name="description"
-        type="text"
-        isDisabled={executionEnvironment?.managed || false}
-      />
-      {isOrgLookupDisabled && isGloballyAvailable.current ? (
-        <Tooltip
-          content={t`Globally available execution environment can not be reassigned to a specific Organization`}
-        >
-          {renderOrganizationLookup()}
-        </Tooltip>
-      ) : (
-        renderOrganizationLookup()
-      )}
-
-      <CredentialLookup
-        label={t`Registry credential`}
-        credentialTypeKind="registry"
-        helperTextInvalid={credentialMeta.error}
-        isValid={!credentialMeta.touched || !credentialMeta.error}
-        onBlur={() => credentialHelpers.setTouched()}
-        onChange={onCredentialChange}
-        value={credentialField.value}
-        tooltip={t`Credential to authenticate with a protected container registry.`}
-        isDisabled={executionEnvironment?.managed || false}
-      />
     </>
   );
 }
