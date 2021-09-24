@@ -33,12 +33,12 @@ const PageHeader = styled(PFPageHeader)`
   }
 `;
 
-function AppContainer({ navRouteConfig = [], children }) {
+function AppContainer({ navRouteConfig = [], children, hideNav }) {
   const config = useConfig();
   const { logout, handleSessionContinue, sessionCountdown } = useSession();
 
   const isReady = !!config.license_info;
-  const isSidebarVisible = useAuthorizedPath();
+  const hasValidSubscription = useAuthorizedPath();
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
 
   const handleAboutModalOpen = () => setIsAboutModalOpen(true);
@@ -53,22 +53,6 @@ function AppContainer({ navRouteConfig = [], children }) {
 
   const brandName = config?.license_info?.product_name;
   const alt = brandName ? t`${brandName} logo` : t`brand logo`;
-
-  const header = (
-    <PageHeader
-      showNavToggle
-      logo={<BrandLogo alt={alt} />}
-      logoProps={{ href: '/' }}
-      headerTools={
-        <PageHeaderToolbar
-          loggedInUser={config?.me}
-          isAboutDisabled={!config?.version}
-          onAboutClick={handleAboutModalOpen}
-          onLogoutClick={logout}
-        />
-      }
-    />
-  );
 
   const simpleHeader = config.isLoading ? null : (
     <PageHeader
@@ -85,6 +69,24 @@ function AppContainer({ navRouteConfig = [], children }) {
         </PageHeaderTools>
       }
     />
+  );
+
+  const header = hasValidSubscription ? (
+    <PageHeader
+      showNavToggle
+      logo={<BrandLogo alt={alt} />}
+      logoProps={{ href: '/' }}
+      headerTools={
+        <PageHeaderToolbar
+          loggedInUser={config?.me}
+          isAboutDisabled={!config?.version}
+          onAboutClick={handleAboutModalOpen}
+          onLogoutClick={logout}
+        />
+      }
+    />
+  ) : (
+    simpleHeader
   );
 
   const sidebar = (
@@ -110,9 +112,9 @@ function AppContainer({ navRouteConfig = [], children }) {
   return (
     <>
       <Page
-        isManagedSidebar={isSidebarVisible}
-        header={isSidebarVisible ? header : simpleHeader}
-        sidebar={isSidebarVisible && sidebar}
+        isManagedSidebar={!hideNav && hasValidSubscription}
+        header={hideNav ? null : header}
+        sidebar={!hideNav && hasValidSubscription && sidebar}
       >
         {isReady ? children : null}
       </Page>

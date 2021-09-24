@@ -14,14 +14,9 @@ import {
 import { ErrorBoundary } from 'react-error-boundary';
 import { I18nProvider } from '@lingui/react';
 import { i18n } from '@lingui/core';
-import { Card, PageSection } from '@patternfly/react-core';
-import {
-  ConfigProvider,
-  useAuthorizedPath,
-  useUserProfile,
-} from 'contexts/Config';
+import { Card, Page, PageSection } from '@patternfly/react-core';
+import { ConfigProvider, useAuthorizedPath } from 'contexts/Config';
 import { SessionProvider, useSession } from 'contexts/Session';
-import AppContainer from 'components/AppContainer';
 import Background from 'components/Background';
 import ContentError from 'components/ContentError';
 import NotFound from 'screens/NotFound';
@@ -35,6 +30,16 @@ import { dynamicActivate, locales } from './i18nLoader';
 import getRouteConfig from './routeConfig';
 import { SESSION_REDIRECT_URL } from './constants';
 
+const RenderAppContainer = () => {
+  const navRouteConfig = getRouteConfig({ isSuperUser: true });
+
+  return (
+    <Page>
+      <AuthorizedRoutes routeConfig={navRouteConfig} />
+    </Page>
+  );
+};
+
 function ErrorFallback({ error }) {
   return (
     <PageSection>
@@ -44,17 +49,6 @@ function ErrorFallback({ error }) {
     </PageSection>
   );
 }
-
-const RenderAppContainer = () => {
-  const userProfile = useUserProfile();
-  const navRouteConfig = getRouteConfig(userProfile);
-
-  return (
-    <AppContainer navRouteConfig={navRouteConfig} hideNav>
-      <AuthorizedRoutes routeConfig={navRouteConfig} />
-    </AppContainer>
-  );
-};
 
 const AuthorizedRoutes = ({ routeConfig }) => {
   const isAuthorized = useAuthorizedPath();
@@ -105,10 +99,6 @@ const ProtectedRoute = ({ children, ...rest }) => {
   const { authRedirectTo, setAuthRedirectTo } = useSession();
   const { pathname } = useLocation();
 
-  useEffect(() => {
-    setAuthRedirectTo(authRedirectTo === '/logout' ? '/' : pathname);
-  });
-
   if (isAuthenticated(document.cookie)) {
     return (
       <Route {...rest}>
@@ -118,6 +108,8 @@ const ProtectedRoute = ({ children, ...rest }) => {
       </Route>
     );
   }
+
+  setAuthRedirectTo(authRedirectTo === '/logout' ? '/' : pathname);
 
   return <Redirect to="/login" />;
 };

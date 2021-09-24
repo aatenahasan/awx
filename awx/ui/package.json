@@ -1,5 +1,6 @@
 {
   "name": "ui",
+  "main": "build/index.js",
   "private": true,
   "engines": {
     "node": "14.x"
@@ -59,6 +60,15 @@
     "prettier": "2.3.2",
     "react-scripts": "^4.0.3"
   },
+  "babel": {
+    "presets": [
+      "@babel/preset-react",
+      "@babel/preset-env"
+    ],
+    "plugins": [
+      "@babel/plugin-transform-react-jsx"
+    ]
+  },
   "scripts": {
     "prelint": "lingui compile",
     "prestart": "lingui compile",
@@ -66,8 +76,10 @@
     "pretest": "lingui compile",
     "pretest-watch": "lingui compile",
     "start": "ESLINT_NO_DEV_ERRORS=true PORT=3001 HTTPS=true DANGEROUSLY_DISABLE_HOST_CHECK=true react-scripts start",
+    "start-without-nav": "ESLINT_NO_DEV_ERRORS=true PORT=3001 HTTPS=true DANGEROUSLY_DISABLE_HOST_CHECK=true REACT_APP_BUILD_TARGET=without_nav react-scripts start",
     "start-instrumented": "ESLINT_NO_DEV_ERRORS=true DEBUG=instrument-cra PORT=3001 HTTPS=true DANGEROUSLY_DISABLE_HOST_CHECK=true react-scripts -r @cypress/instrument-cra start",
     "build": "INLINE_RUNTIME_CHUNK=false react-scripts build",
+    "build-without-nav": "INLINE_RUNTIME_CHUNK=false REACT_APP_BUILD_TARGET=without_nav react-scripts build",
     "test": "TZ='UTC' react-scripts test --watchAll=false",
     "test-watch": "TZ='UTC' react-scripts test",
     "eject": "react-scripts eject",
