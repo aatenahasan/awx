@@ -45,12 +45,12 @@ function ErrorFallback({ error }) {
   );
 }
 
-const RenderAppContainer = () => {
+const RenderAppContainer = ({ hideNav }) => {
   const userProfile = useUserProfile();
   const navRouteConfig = getRouteConfig(userProfile);
 
   return (
-    <AppContainer navRouteConfig={navRouteConfig} hideNav>
+    <AppContainer navRouteConfig={navRouteConfig} hideNav={hideNav}>
       <AuthorizedRoutes routeConfig={navRouteConfig} />
     </AppContainer>
   );
@@ -122,7 +122,7 @@ const ProtectedRoute = ({ children, ...rest }) => {
   return <Redirect to="/login" />;
 };
 
-function App() {
+function App({ hideNav }) {
   const history = useHistory();
   const { hash, search, pathname } = useLocation();
   let language = getLanguageWithoutRegionCode(navigator);
@@ -170,7 +170,7 @@ function App() {
             </Route>
             <ProtectedRoute>
               <ConfigProvider>
-                <RenderAppContainer />
+                <RenderAppContainer hideNav={hideNav} />
               </ConfigProvider>
             </ProtectedRoute>
           </Switch>
@@ -180,8 +180,8 @@ function App() {
   );
 }
 
-export default () => (
+export default ({ hideNav }) => (
   <HashRouter>
-    <App />
+    <App hideNav={hideNav} />
   </HashRouter>
 );
