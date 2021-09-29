@@ -172,8 +172,8 @@ function PaginatedTable({
 }
 
 const Item = PropTypes.shape({
-  id: PropTypes.number.isRequired,
-  url: PropTypes.string.isRequired,
+  id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  url: PropTypes.string,
   name: PropTypes.string,
 });
 

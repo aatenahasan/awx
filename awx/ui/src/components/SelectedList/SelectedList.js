@@ -25,12 +25,17 @@ class SelectedList extends Component {
       displayKey,
       isReadOnly,
       renderItemChip,
+      uniqueKey,
     } = this.props;
 
     const renderChip =
       renderItemChip ||
       (({ item, removeItem }) => (
-        <Chip key={item.id} onClick={removeItem} isReadOnly={isReadOnly}>
+        <Chip
+          key={item[uniqueKey]}
+          onClick={removeItem}
+          isReadOnly={isReadOnly}
+        >
           {item[displayKey]}
         </Chip>
       ));
@@ -61,6 +66,7 @@ SelectedList.propTypes = {
   selected: PropTypes.arrayOf(PropTypes.object).isRequired,
   isReadOnly: PropTypes.bool,
   renderItemChip: PropTypes.func,
+  uniqueKey: PropTypes.string,
 };
 
 SelectedList.defaultProps = {
@@ -69,6 +75,7 @@ SelectedList.defaultProps = {
   onRemove: () => null,
   isReadOnly: false,
   renderItemChip: null,
+  uniqueKey: 'id',
 };
 
 export default SelectedList;

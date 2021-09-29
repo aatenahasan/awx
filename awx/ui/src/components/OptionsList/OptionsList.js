@@ -43,6 +43,7 @@ function OptionsList({
   selectItem,
   sortColumns,
   sortSelectedItems,
+  uniqueKey,
   value,
 }) {
   const buildHeaderRow = (
@@ -77,6 +78,7 @@ function OptionsList({
           isReadOnly={readOnly}
           renderItemChip={renderItemChip}
           displayKey={displayKey}
+          uniqueKey={uniqueKey}
         />
       );
     }
@@ -100,14 +102,14 @@ function OptionsList({
         onRowClick={selectItem}
         renderRow={(item, index) => (
           <CheckboxListItem
-            key={item.id}
+            key={item[uniqueKey]}
             rowIndex={index}
-            itemId={item.id}
+            itemId={item[uniqueKey]}
             name={multiple ? item[displayKey] : name}
             label={item[displayKey]}
             columns={columns}
             item={item}
-            isSelected={value.some((i) => i.id === item.id)}
+            isSelected={value.some((i) => i[uniqueKey] === item[uniqueKey])}
             onSelect={() => selectItem(item)}
             onDeselect={() => deselectItem(item)}
             isRadio={!multiple}
@@ -121,7 +123,7 @@ function OptionsList({
 }
 
 const Item = shape({
-  id: oneOfType([number, string]).isRequired,
+  id: oneOfType([number, string]),
   name: string.isRequired,
   url: string,
 });
@@ -137,6 +139,7 @@ OptionsList.propTypes = {
   searchColumns: SearchColumns,
   selectItem: func.isRequired,
   sortColumns: SortColumns,
+  uniqueKey: string,
   value: arrayOf(Item).isRequired,
 };
 OptionsList.defaultProps = {
@@ -146,6 +149,7 @@ OptionsList.defaultProps = {
   searchColumns: [],
   sortColumns: [],
   displayKey: 'name',
+  uniqueKey: 'id',
 };
 
 export default OptionsList;

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { func, shape, bool } from 'prop-types';
 import { Formik, useField, useFormikContext } from 'formik';
 import { t } from '@lingui/macro';
@@ -14,6 +14,7 @@ import ContentError from 'components/ContentError';
 import ContentLoading from 'components/ContentLoading';
 import { required } from 'util/validators';
 import useRequest from 'hooks/useRequest';
+import ImageField from './ImageField';
 
 function ExecutionEnvironmentFormFields({
   me,
@@ -21,6 +22,7 @@ function ExecutionEnvironmentFormFields({
   executionEnvironment,
   isOrgLookupDisabled,
 }) {
+  const [hubCredSelected, setHubCredSelected] = useState(false);
   const [credentialField, credentialMeta, credentialHelpers] =
     useField('credential');
   const [organizationField, organizationMeta, organizationHelpers] =
@@ -29,6 +31,14 @@ function ExecutionEnvironmentFormFields({
   const isGloballyAvailable = useRef(!organizationField.value);
 
   const { setFieldValue, setFieldTouched } = useFormikContext();
+
+  useEffect(() => {
+    if (credentialField?.value?.name?.startsWith('Hub')) {
+      setHubCredSelected(true);
+    } else {
+      setHubCredSelected(false);
+    }
+  }, [credentialField.value]);
 
   const onCredentialChange = useCallback(
     (value) => {
@@ -118,30 +128,9 @@ function ExecutionEnvironmentFormFields({
         tooltip={t`Credential to authenticate with a protected container registry.`}
         isDisabled={executionEnvironment?.managed || false}
       />
-      <FormField
-        id="execution-environment-image"
-        label={t`Image`}
-        name="image"
-        type="text"
-        validate={required(null)}
-        isRequired
+      <ImageField
+        hubCredSelected={hubCredSelected}
         isDisabled={executionEnvironment?.managed || false}
-        tooltip={
-          <span>
-            {t`The full image location, including the container registry, image name, and version tag.`}
-            <br />
-            <br />
-            {t`Examples:`}
-            <ul css="margin: 10px 0 10px 20px">
-              <li>
-                <code>quay.io/ansible/awx-ee:latest</code>
-              </li>
-              <li>
-                <code>repo/project/image-name:tag</code>
-              </li>
-            </ul>
-          </span>
-        }
       />
       <FormGroup
         fieldId="execution-environment-container-options"

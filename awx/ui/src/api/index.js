@@ -10,6 +10,7 @@ import Dashboard from './models/Dashboard';
 import ExecutionEnvironments from './models/ExecutionEnvironments';
 import Groups from './models/Groups';
 import Hosts from './models/Hosts';
+import Hub from './models/Hub';
 import InstanceGroups from './models/InstanceGroups';
 import Instances from './models/Instances';
 import Inventories from './models/Inventories';
@@ -55,6 +56,7 @@ const DashboardAPI = new Dashboard();
 const ExecutionEnvironmentsAPI = new ExecutionEnvironments();
 const GroupsAPI = new Groups();
 const HostsAPI = new Hosts();
+const HubAPI = new Hub();
 const InstanceGroupsAPI = new InstanceGroups();
 const InstancesAPI = new Instances();
 const InventoriesAPI = new Inventories();
@@ -101,6 +103,7 @@ export {
   ExecutionEnvironmentsAPI,
   GroupsAPI,
   HostsAPI,
+  HubAPI,
   InstanceGroupsAPI,
   InstancesAPI,
   InventoriesAPI,

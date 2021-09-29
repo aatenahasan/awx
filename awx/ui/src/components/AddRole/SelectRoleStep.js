@@ -1,8 +1,6 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-
 import { t } from '@lingui/macro';
-
 import CheckboxCard from './CheckboxCard';
 import { SelectedList } from '../SelectedList';
 

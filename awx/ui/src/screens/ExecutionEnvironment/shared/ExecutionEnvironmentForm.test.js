@@ -155,6 +155,7 @@ describe('<ExecutionEnvironmentForm/>', () => {
     expect(wrapper.find('FormGroup[label="Image"]').length).toBe(1);
     expect(wrapper.find('FormGroup[label="Description"]').length).toBe(1);
     expect(wrapper.find('CredentialLookup').length).toBe(1);
+    expect(wrapper.find('MagicIcon').length).toBe(0);
   });
 
   test('should call onSubmit when form submitted', async () => {
@@ -167,18 +168,9 @@ describe('<ExecutionEnvironmentForm/>', () => {
 
   test('should update form values', async () => {
     await act(async () => {
-      wrapper.find('input#execution-environment-image').simulate('change', {
-        target: {
-          value: 'Updated EE Name',
-          name: 'name',
-        },
-      });
-      wrapper.find('input#execution-environment-image').simulate('change', {
-        target: {
-          value: 'https://registry.com/image/container2',
-          name: 'image',
-        },
-      });
+      wrapper.find('input#execution-environment-image').instance().value =
+        'https://registry.com/image/container2';
+      wrapper.find('input#execution-environment-image').simulate('change');
       wrapper
         .find('input#execution-environment-description')
         .simulate('change', {
@@ -311,5 +303,40 @@ describe('<ExecutionEnvironmentForm/>', () => {
         .find('FormSelect[id="container-pull-options"]')
         .prop('isDisabled')
     ).toEqual(false);
+  });
+
+  test('should show Hub wizard button on image field after Hub cred selected', async () => {
+    let newWrapper;
+    await act(async () => {
+      newWrapper = mountWithContexts(
+        <ExecutionEnvironmentForm
+          onCancel={onCancel}
+          onSubmit={onSubmit}
+          executionEnvironment={{
+            ...executionEnvironment,
+            summary_fields: {
+              organization: {
+                id: 1,
+                name: 'Default',
+                description: '',
+              },
+              credential: {
+                id: 5,
+                name: 'Hub-cred',
+                description: '',
+                kind: 'registry',
+                cloud: false,
+                kubernetes: false,
+                credential_type_id: 17,
+              },
+            },
+          }}
+          options={mockOptions}
+          me={mockMe}
+        />
+      );
+    });
+    await waitForElement(newWrapper, 'ContentLoading', (el) => el.length === 0);
+    expect(newWrapper.find('MagicIcon').length).toBe(1);
   });
 });
