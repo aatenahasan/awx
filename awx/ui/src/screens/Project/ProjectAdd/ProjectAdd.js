@@ -14,14 +14,11 @@ function ProjectAdd() {
       values.scm_type = '';
     }
     if (!values.credential) {
-      // Depending on the permissions of the user submitting the form,
-      // the API might throw an unexpected error if our creation request
-      // has a zero-length string as its credential field. As a work-around,
-      // normalize falsey credential fields by deleting them.
-      delete values.credential;
-    } else {
+      values.credential = null;
+    } else if (values?.credential?.id) {
       values.credential = values.credential.id;
     }
+
     setFormSubmitError(null);
     try {
       const {
