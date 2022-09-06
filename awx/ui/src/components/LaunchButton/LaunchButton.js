@@ -42,6 +42,7 @@ function LaunchButton({ resource, children }) {
   const [launchConfig, setLaunchConfig] = useState(null);
   const [surveyConfig, setSurveyConfig] = useState(null);
   const [labels, setLabels] = useState([]);
+  const [instanceGroups, setInstanceGroups] = useState([]);
   const [isLaunching, setIsLaunching] = useState(false);
   const [error, setError] = useState(null);
 
@@ -59,6 +60,11 @@ function LaunchButton({ resource, children }) {
       resource.type === 'workflow_job_template'
         ? WorkflowJobTemplatesAPI.readAllLabels(resource.id)
         : JobTemplatesAPI.readAllLabels(resource.id);
+
+    const readInstanceGroups =
+      resource.type === 'workflow_job_template'
+        ? WorkflowJobTemplatesAPI.readInstanceGroups(resource.id)
+        : JobTemplatesAPI.readInstanceGroups(resource.id);
 
     try {
       const { data: launch } = await readLaunch;
@@ -81,6 +87,14 @@ function LaunchButton({ resource, children }) {
         }));
 
         setLabels(allLabels);
+      }
+
+      if (launch.ask_instance_groups_on_launch) {
+        const {
+          data: { results },
+        } = await readInstanceGroups;
+
+        setInstanceGroups(results);
       }
 
       if (canLaunchWithoutPrompt(launch)) {
@@ -197,6 +211,7 @@ function LaunchButton({ resource, children }) {
           labels={labels}
           onLaunch={launchWithParams}
           onCancel={() => setShowLaunchPrompt(false)}
+          instanceGroups={instanceGroups}
         />
       )}
     </>
