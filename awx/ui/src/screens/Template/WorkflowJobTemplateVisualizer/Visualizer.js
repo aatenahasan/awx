@@ -400,6 +400,8 @@ function Visualizer({ template }) {
             nodeRequests.push(
               WorkflowJobTemplatesAPI.createNode(template.id, {
                 ...node.promptValues,
+                execution_environment:
+                  node.promptValues?.execution_environment?.id || null,
                 inventory: node.promptValues?.inventory?.id || null,
                 unified_job_template: node.fullUnifiedJobTemplate.id,
                 all_parents_must_converge: node.all_parents_must_converge,

@@ -274,7 +274,8 @@ export default function useWorkflowNodeSteps(
   resource,
   askLinkType,
   resourceDefaultCredentials,
-  labels
+  labels,
+  instanceGroups
 ) {
   const { nodeToEdit } = useContext(WorkflowStateContext);
   const {
@@ -291,7 +292,7 @@ export default function useWorkflowNodeSteps(
     useInventoryStep(launchConfig, resource, visited),
     useCredentialsStep(launchConfig, resource, resourceDefaultCredentials),
     useExecutionEnvironmentStep(launchConfig, resource),
-    useInstanceGroupsStep(launchConfig, resource),
+    useInstanceGroupsStep(launchConfig, resource, instanceGroups),
     useOtherPromptsStep(launchConfig, resource, labels),
     useSurveyStep(launchConfig, surveyConfig, resource, visited),
   ];
