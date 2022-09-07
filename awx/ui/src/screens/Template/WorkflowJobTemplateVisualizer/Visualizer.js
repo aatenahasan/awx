@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useReducer } from 'react';
 import { useHistory } from 'react-router-dom';
-
 import styled from 'styled-components';
 import { shape } from 'prop-types';
 import { t } from '@lingui/macro';
@@ -18,6 +17,7 @@ import ContentLoading from 'components/ContentLoading';
 import workflowReducer from 'components/Workflow/workflowReducer';
 import useRequest, { useDismissableError } from 'hooks/useRequest';
 import {
+  OrganizationsAPI,
   WorkflowApprovalTemplatesAPI,
   WorkflowJobTemplateNodesAPI,
   WorkflowJobTemplatesAPI,
@@ -126,6 +126,7 @@ function Visualizer({ template }) {
     addNodeTarget: null,
     addingLink: false,
     contentError: null,
+    defaultOrganization: null,
     isLoading: true,
     linkToDelete: null,
     linkToEdit: null,
@@ -148,6 +149,7 @@ function Visualizer({ template }) {
     addLinkTargetNode,
     addNodeSource,
     contentError,
+    defaultOrganization,
     isLoading,
     linkToDelete,
     linkToEdit,
@@ -261,6 +263,14 @@ function Visualizer({ template }) {
   useEffect(() => {
     async function fetchData() {
       try {
+        const {
+          data: { results },
+        } = await OrganizationsAPI.read({ page_size: 1, page: 1 });
+        dispatch({
+          type: 'SET_DEFAULT_ORGANIZATION',
+          value: results[0]?.id,
+        });
+
         const workflowNodes = await fetchWorkflowNodes(template.id);
         dispatch({
           type: 'GENERATE_NODES_AND_LINKS',
@@ -302,6 +312,10 @@ function Visualizer({ template }) {
       const deletedNodeIds = [];
       const associateCredentialRequests = [];
       const disassociateCredentialRequests = [];
+      const associateLabelRequests = [];
+      const disassociateLabelRequests = [];
+      const associateInstanceGroupRequests = [];
+      const disassociateInstanceGroupRequests = [];
 
       const generateLinkMapAndNewLinks = () => {
         const linkMap = {};
@@ -425,6 +439,19 @@ function Visualizer({ template }) {
                     );
                   });
                 }
+
+                if (node.promptValues?.labels?.length > 0) {
+                  node.promptValues.labels.forEach((label) => {
+                    associateLabelRequests.push(
+                      WorkflowJobTemplateNodesAPI.associateLabel(
+                        data.id,
+                        label,
+                        node.fullUnifiedJobTemplate.organization ||
+                          defaultOrganization
+                      )
+                    );
+                  });
+                }
               })
             );
           }
@@ -541,8 +568,16 @@ function Visualizer({ template }) {
       );
       await Promise.all(associateNodes(newLinks, originalLinkMap));
 
-      await Promise.all(disassociateCredentialRequests);
-      await Promise.all(associateCredentialRequests);
+      await Promise.all([
+        ...disassociateCredentialRequests,
+        ...disassociateInstanceGroupRequests,
+        ...disassociateLabelRequests,
+      ]);
+      await Promise.all([
+        ...associateCredentialRequests,
+        ...associateInstanceGroupRequests,
+        ...associateLabelRequests,
+      ]);
 
       history.push(`/templates/workflow_job_template/${template.id}/details`);
     }, [links, nodes, history, template.id]),

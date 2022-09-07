@@ -64,7 +64,6 @@ function VisualizerNode({
 }) {
   const ref = useRef(null);
   const [hovering, setHovering] = useState(false);
-  const [credentialsError, setCredentialsError] = useState(null);
   const [detailError, setDetailError] = useState(null);
   const dispatch = useContext(WorkflowDispatchContext);
   const { addingLink, addLinkSourceNode, nodePositions, nodes } =
@@ -72,10 +71,10 @@ function VisualizerNode({
   const isAddLinkSourceNode =
     addLinkSourceNode && addLinkSourceNode.id === node.id;
 
-  const handleCredentialsErrorClose = () => setCredentialsError(null);
   const handleDetailErrorClose = () => setDetailError(null);
 
   const updateNode = async () => {
+    console.log(node);
     const updatedNodes = [...nodes];
     const updatedNode = updatedNodes.find((n) => n.id === node.id);
     if (
@@ -102,14 +101,34 @@ function VisualizerNode({
       !node?.originalNodeCredentials
     ) {
       try {
-        const {
-          data: { results },
-        } = await WorkflowJobTemplateNodesAPI.readCredentials(
-          node.originalNodeObject.id
-        );
-        updatedNode.originalNodeCredentials = results;
+        if (node?.fullUnifiedJobTemplate?.ask_credential_on_launch) {
+          const {
+            data: { results },
+          } = await WorkflowJobTemplateNodesAPI.readCredentials(
+            node.originalNodeObject.id
+          );
+          updatedNode.originalNodeCredentials = results;
+        }
+        if (node?.fullUnifiedJobTemplate?.ask_labels_on_launch) {
+          const {
+            data: { results },
+          } = await WorkflowJobTemplateNodesAPI.readAllLabels(
+            node.originalNodeObject.id
+          );
+          updatedNode.originalNodeLabels = results;
+          updatedNode.originalNodeObject.labels = results;
+        }
+        if (node?.fullUnifiedJobTemplate?.ask_instance_groups_on_launch) {
+          const {
+            data: { results },
+          } = await WorkflowJobTemplateNodesAPI.readInstanceGroups(
+            node.originalNodeObject.id
+          );
+          updatedNode.originalInstanceGroups = results;
+          updatedNode.originalNodeObject.instance_groups = results;
+        }
       } catch (err) {
-        setCredentialsError(err);
+        setDetailError(err);
         return null;
       }
     }
@@ -348,17 +367,6 @@ function VisualizerNode({
         >
           {t`Failed to retrieve full node resource object.`}
           <ErrorDetail error={detailError} />
-        </AlertModal>
-      )}
-      {credentialsError && (
-        <AlertModal
-          isOpen={credentialsError}
-          variant="error"
-          title={t`Error!`}
-          onClose={handleCredentialsErrorClose}
-        >
-          {t`Failed to retrieve node credentials.`}
-          <ErrorDetail error={credentialsError} />
         </AlertModal>
       )}
     </>
