@@ -61,11 +61,6 @@ function LaunchButton({ resource, children }) {
         ? WorkflowJobTemplatesAPI.readAllLabels(resource.id)
         : JobTemplatesAPI.readAllLabels(resource.id);
 
-    const readInstanceGroups =
-      resource.type === 'workflow_job_template'
-        ? WorkflowJobTemplatesAPI.readInstanceGroups(resource.id)
-        : JobTemplatesAPI.readInstanceGroups(resource.id);
-
     try {
       const { data: launch } = await readLaunch;
       setLaunchConfig(launch);
@@ -92,7 +87,7 @@ function LaunchButton({ resource, children }) {
       if (launch.ask_instance_groups_on_launch) {
         const {
           data: { results },
-        } = await readInstanceGroups;
+        } = await JobTemplatesAPI.readInstanceGroups(resource.id);
 
         setInstanceGroups(results);
       }
