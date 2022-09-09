@@ -580,7 +580,7 @@ function Visualizer({ template }) {
       ]);
 
       history.push(`/templates/workflow_job_template/${template.id}/details`);
-    }, [links, nodes, history, template.id]),
+    }, [links, nodes, history, defaultOrganization, template.id]),
     {}
   );
 

@@ -74,7 +74,6 @@ function VisualizerNode({
   const handleDetailErrorClose = () => setDetailError(null);
 
   const updateNode = async () => {
-    console.log(node);
     const updatedNodes = [...nodes];
     const updatedNode = updatedNodes.find((n) => n.id === node.id);
     if (
