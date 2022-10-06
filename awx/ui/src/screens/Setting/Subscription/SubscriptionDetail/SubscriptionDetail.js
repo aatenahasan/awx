@@ -102,6 +102,23 @@ function SubscriptionDetail() {
                 }
               />
             )}
+          {typeof automatedInstancesCount !== 'undefined' &&
+            automatedInstancesCount !== null && (
+              <Detail
+                dataCy="subscription-hosts-automated"
+                label={t`Hosts automated (no translations)`}
+                value={
+                  automated_since ? (
+                    <>
+                      {automatedInstancesCount} since{' '}
+                      {automatedInstancesSinceDateTime}
+                    </>
+                  ) : (
+                    automatedInstancesCount
+                  )
+                }
+              />
+            )}
           <Detail
             dataCy="subscription-hosts-imported"
             label={t`Hosts imported`}
