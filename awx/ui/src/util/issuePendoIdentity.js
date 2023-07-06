@@ -1,14 +1,14 @@
-import { RootAPI, UsersAPI } from 'api';
+import { UsersAPI } from 'api';
 import bootstrapPendo from './bootstrapPendo';
 
 function buildPendoOptions(config, pendoApiKey) {
-  const towerVersion = config.version.split('-')[0];
-  const trial = config.trial ? config.trial : false;
+  const towerVersion = 'mabashian-0.0.0';
+  const trial = false;
 
   return {
     apiKey: pendoApiKey,
     visitor: {
-      id: 0,
+      id: 999999999,
       role: null,
     },
     account: {
@@ -49,20 +49,13 @@ async function issuePendoIdentity(config) {
   config.license_info.version = config.version;
   config.license_info.ansible_version = config.ansible_version;
 
-  if (config.analytics_status !== 'off') {
-    const {
-      data: { PENDO_API_KEY },
-    } = await RootAPI.readAssetVariables();
-    if (PENDO_API_KEY && PENDO_API_KEY !== '') {
-      bootstrapPendo(PENDO_API_KEY);
-      const pendoOptions = buildPendoOptions(config, PENDO_API_KEY);
-      const pendoOptionsWithRole = await buildPendoOptionsRole(
-        pendoOptions,
-        config
-      );
-      window.pendo.initialize(pendoOptionsWithRole);
-    }
-  }
+  bootstrapPendo('xxxxx-xxxxx-xxxxx-xxxxx-xxxxx');
+  const pendoOptions = buildPendoOptions(config, 'xxxxx-xxxxx-xxxxx-xxxxx-xxxxx');
+  const pendoOptionsWithRole = await buildPendoOptionsRole(
+    pendoOptions,
+    config
+  );
+  window.pendo.initialize(pendoOptionsWithRole);
 }
 
 export default issuePendoIdentity;

@@ -45,9 +45,8 @@ function AppContainer({ navRouteConfig = [], children }) {
   const handleAboutModalClose = () => setIsAboutModalOpen(false);
 
   useEffect(() => {
-    if ('analytics_status' in config) {
-      issuePendoIdentity(config);
-    }
+    console.log('issuing pendo identity');
+    issuePendoIdentity(config);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config.analytics_status]);
 
