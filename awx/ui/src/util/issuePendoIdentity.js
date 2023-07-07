@@ -49,8 +49,8 @@ async function issuePendoIdentity(config) {
   config.license_info.version = config.version;
   config.license_info.ansible_version = config.ansible_version;
 
-  bootstrapPendo('xxxxx-xxxxx-xxxxx-xxxxx-xxxxx');
-  const pendoOptions = buildPendoOptions(config, 'xxxxx-xxxxx-xxxxx-xxxxx-xxxxx');
+  bootstrapPendo('e2ed58fe-4ba2-4798-4122-de648bbfe9f2');
+  const pendoOptions = buildPendoOptions(config, 'e2ed58fe-4ba2-4798-4122-de648bbfe9f2');
   const pendoOptionsWithRole = await buildPendoOptionsRole(
     pendoOptions,
     config
