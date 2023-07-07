@@ -1,18 +1,19 @@
 import { UsersAPI } from 'api';
 import bootstrapPendo from './bootstrapPendo';
 
-function buildPendoOptions(config, pendoApiKey) {
-  const towerVersion = 'mabashian-0.0.0';
+function buildPendoOptions(config) {
+  const towerVersion = 'ahasan-0.0.0';
   const trial = false;
 
   return {
-    apiKey: pendoApiKey,
+    apiKey: 'e2ed58fe-4ba2-4798-4122-de648bbfe9f2',
     visitor: {
-      id: 999999999,
+      id: 111111,
+      email: 'aahasan@redhat.com',
       role: null,
     },
     account: {
-      id: 'tower.ansible.com',
+      id: 'aap.controller.com',
       planLevel: config.license_type,
       planPrice: config.instance_count,
       creationDate: config.license_date,
